@@ -14,7 +14,7 @@ namespace Krile_DB_Reducer
 
         static void Main(string[] args)
         {
-            ulong[] DataCount = new ulong[5];
+            ulong DataCount;
             ulong TargetID;
             string TargetDT;
 
@@ -28,7 +28,7 @@ namespace Krile_DB_Reducer
 
             Console.WriteLine("Reduce start..." + "\n");
 
-            if ((DataCount[0] = GetTotalRecords("Status")) > LeaveData)
+            if ((DataCount = GetTotalRecords("Status")) > LeaveData)
             {
                 using (var sqlc = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
                 {
@@ -38,7 +38,7 @@ namespace Krile_DB_Reducer
                         cmd.CommandText = "SELECT * FROM Status ORDER BY julianday(CreatedAt)";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = "SELECT CreatedAt FROM Status LIMIT 1 OFFSET " + (DataCount[0] - LeaveData);
+                        cmd.CommandText = "SELECT CreatedAt FROM Status LIMIT 1 OFFSET " + (DataCount - LeaveData);
                         TargetDT = cmd.ExecuteScalar().ToString();
 
                         DateTime dt = DateTime.Parse(TargetDT);
@@ -53,7 +53,7 @@ namespace Krile_DB_Reducer
                 Console.WriteLine("Status reduced.");
             }
 
-            if ((DataCount[0] = GetTotalRecords("StatusEntity")) > LeaveData)
+            if ((DataCount = GetTotalRecords("StatusEntity")) > LeaveData)
             {
                 using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
                 {
@@ -63,7 +63,7 @@ namespace Krile_DB_Reducer
                         cmd.CommandText = "SELECT * FROM StatusEntity ORDER BY Id";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = "SELECT Id FROM StatusEntity LIMIT 1 OFFSET " + (DataCount[0] - LeaveData);
+                        cmd.CommandText = "SELECT Id FROM StatusEntity LIMIT 1 OFFSET " + (DataCount - LeaveData);
                         TargetID = Convert.ToUInt64(cmd.ExecuteScalar());
 
                         cmd.CommandText = "DELETE FROM StatusEntity WHERE Id < " + TargetID;
@@ -75,33 +75,20 @@ namespace Krile_DB_Reducer
                 Console.WriteLine("StatusEntity reduced.");
             }
 
-            using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
-            {
-                con.Open();
-                using (SQLiteCommand cmd = con.CreateCommand())
-                {
-                    cmd.CommandText = "DELETE FROM UserUrlEntity";
-                    cmd.ExecuteNonQuery();
-                }
-                con.Close();
+            //using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
+            //{
+            //    con.Open();
+            //    using (SQLiteCommand cmd = con.CreateCommand())
+            //    {
+            //        cmd.CommandText = "DELETE FROM UserUrlEntity";
+            //        cmd.ExecuteNonQuery();
+            //    }
+            //    con.Close();
 
-                Console.WriteLine("UserUrlEntity reduced.");
-            }
+            //    Console.WriteLine("UserUrlEntity reduced.");
+            //}
 
-            using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
-            {
-                con.Open();
-                using (SQLiteCommand cmd = con.CreateCommand())
-                {
-                    cmd.CommandText = "DELETE FROM UserDescriptionEntity";
-                    cmd.ExecuteNonQuery();
-                }
-                con.Close();
-
-                Console.WriteLine("UserDescriptionEntity reduced.");
-            }
-
-            if ((DataCount[0] = GetTotalRecords("Favorites")) > LeaveData)
+            if ((DataCount = GetTotalRecords("Favorites")) > LeaveData)
             {
                 using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
                 {
@@ -111,7 +98,7 @@ namespace Krile_DB_Reducer
                         cmd.CommandText = "SELECT * FROM Favorites ORDER BY Id";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = "SELECT Id FROM Favorites LIMIT 1 OFFSET " + (DataCount[0] - LeaveData);
+                        cmd.CommandText = "SELECT Id FROM Favorites LIMIT 1 OFFSET " + (DataCount - LeaveData);
                         TargetID = Convert.ToUInt64(cmd.ExecuteScalar());
 
                         cmd.CommandText = "DELETE FROM Favorites WHERE Id < " + TargetID;
@@ -123,7 +110,7 @@ namespace Krile_DB_Reducer
                 Console.WriteLine("Favorites reduced.");
             }
 
-            if ((DataCount[0] = GetTotalRecords("Retweets")) > LeaveData)
+            if ((DataCount = GetTotalRecords("Retweets")) > LeaveData)
             {
                 using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
                 {
@@ -133,7 +120,7 @@ namespace Krile_DB_Reducer
                         cmd.CommandText = "SELECT * FROM Retweets ORDER BY Id";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = "SELECT Id FROM Retweets LIMIT 1 OFFSET " + (DataCount[0] - LeaveData);
+                        cmd.CommandText = "SELECT Id FROM Retweets LIMIT 1 OFFSET " + (DataCount - LeaveData);
                         TargetID = Convert.ToUInt64(cmd.ExecuteScalar());
 
                         cmd.CommandText = "DELETE FROM Retweets WHERE Id < " + TargetID;
@@ -145,44 +132,20 @@ namespace Krile_DB_Reducer
                 Console.WriteLine("Retweets reduced.");
             }
 
-            using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
-            {
-                con.Open();
-                using (SQLiteCommand cmd = con.CreateCommand())
-                {
-                    cmd.CommandText = "DELETE FROM User";
-                    cmd.ExecuteNonQuery();
-                }
-                con.Close();
+            //using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
+            //{
+            //    con.Open();
+            //    using (SQLiteCommand cmd = con.CreateCommand())
+            //    {
+            //        cmd.CommandText = "DELETE FROM User";
+            //        cmd.ExecuteNonQuery();
+            //    }
+            //    con.Close();
 
-                Console.WriteLine("User reduced.");
-            }
+            //    Console.WriteLine("User reduced.");
+            //}
 
-            DataCount[0] = GetTotalRecords("StatusEntity");
-            DataCount[1] = GetTotalRecords("UserUrlEntity");
-            DataCount[2] = GetTotalRecords("UserDescriptionEntity");
-            DataCount[3] = GetTotalRecords("Favorites");
-            DataCount[4] = GetTotalRecords("Retweets");
-            using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
-            {
-                con.Open();
-                using (SQLiteCommand cmd = con.CreateCommand())
-                {
-                    cmd.CommandText = "UPDATE sqlite_sequence SET seq = " + DataCount[0] + " WHERE name = 'StatusEntity'";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "UPDATE sqlite_sequence SET seq = " + DataCount[1] + " WHERE name = 'UserUrlEntity'";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "UPDATE sqlite_sequence SET seq = " + DataCount[2] + " WHERE name = 'UserDescriptionEntity'";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "UPDATE sqlite_sequence SET seq = " + DataCount[3] + " WHERE name = 'Favorites'";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "UPDATE sqlite_sequence SET seq = " + DataCount[4] + " WHERE name = 'Retweets'";
-                    cmd.ExecuteNonQuery();                   
-                }
-                con.Close();
-            }
-            Console.WriteLine("sqlite_sequence updated.");
-
+            Console.WriteLine("VACUUM start...");
             using (var con = new SQLiteConnection("Data Source=" + _DBdir + _DBfile))
             {
                 con.Open();
